@@ -47,27 +47,27 @@ public class CrimeListFragment extends Fragment {
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder {
-        //private Crime mCrime;
-        public TextView mTitleTextView;
-//        private TextView mTitleTextView;  //we add these so that we can reference our new layout file
-//        private TextView mDateTextView;
-//        private CheckBox mSolvedCheckBox;
+        private Crime mCrime;
+        //public TextView mTitleTextView;
+        private TextView mTitleTextView;  //we add these so that we can reference our new layout file
+        private TextView mDateTextView;
+        private CheckBox mSolvedCheckBox;
 
         public CrimeHolder(View itemView) {
             super(itemView);
 
-            mTitleTextView = (TextView) itemView;
-//            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
-//            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
-//            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
+            //mTitleTextView = (TextView) itemView;
+            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
+            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
+            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
         }
 
-//        public void bindCrime(Crime crime) {//CrimeHolder uses this to update the info to reflect state of Crime
-//            mCrime = crime;
-//            mTitleTextView.setText(mCrime.getTitle());
-//            mDateTextView.setText(mCrime.getDate().toString());
-//            mSolvedCheckBox.setChecked(mCrime.isSolved());
-//        }
+        public void bindCrime(Crime crime) {//CrimeHolder uses this to update the info to reflect state of Crime
+            mCrime = crime;
+            mTitleTextView.setText(mCrime.getTitle());
+            mDateTextView.setText(mCrime.getDate().toString());
+            mSolvedCheckBox.setChecked(mCrime.isSolved());
+        }
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
@@ -80,16 +80,16 @@ public class CrimeListFragment extends Fragment {
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) { //called when recycle view needs a new view to display an item
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            //View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false); //use the layout file that we created
-            View view = layoutInflater
-                    .inflate(android.R.layout.simple_list_item_1, parent, false); //create a single textview
+            View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false); //use the layout file that we created
+            //View view = layoutInflater
+                    //.inflate(android.R.layout.simple_list_item_1, parent, false); //create a single textview
             return new CrimeHolder(view);
         }
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) { //binds a viewholder's view to model object
             Crime crime = mCrimes.get(position);
-            holder.mTitleTextView.setText(crime.getTitle());
-            //holder.bindCrime(crime);
+            //holder.mTitleTextView.setText(crime.getTitle());
+            holder.bindCrime(crime);
         }
         @Override
         public int getItemCount() {
