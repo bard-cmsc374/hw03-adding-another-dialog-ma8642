@@ -83,11 +83,12 @@ public class CrimeListFragment extends Fragment {
             mSolvedCheckBox.setChecked(mCrime.isSolved());
         }
 
-        @Override public void onClick(View v) {
+        @Override
+        public void onClick(View v) {
             //Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show(); //displays a toast whenever crime list item is clicked
             //Intent intent = new Intent(getActivity(), CrimeActivity.class);  //starts activity once you click a crime list object
-            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());  //starts activity with the right crime id once you click a crime list object
-
+            //Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());  //starts activity with the right crime id once you click a crime list object
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId()); //starts a pager acitvity with the right crime id once you click a crime list object
             startActivity(intent);
         }
     }
