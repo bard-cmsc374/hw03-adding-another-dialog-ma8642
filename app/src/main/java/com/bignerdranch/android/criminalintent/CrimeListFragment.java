@@ -41,12 +41,22 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     private void updateUI() {  //sets up CrimeListFragment's user interface
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
-        mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
+        if (mAdapter == null) {  //for some reason this makes it so that it kind of saaves data between pressing back button??
+            mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
+            mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements OnClickListener{
@@ -75,7 +85,9 @@ public class CrimeListFragment extends Fragment {
 
         @Override public void onClick(View v) {
             //Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show(); //displays a toast whenever crime list item is clicked
-            Intent intent = new Intent(getActivity(), CrimeActivity.class);  //starts activity once you click a crime list object
+            //Intent intent = new Intent(getActivity(), CrimeActivity.class);  //starts activity once you click a crime list object
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());  //starts activity with the right crime id once you click a crime list object
+
             startActivity(intent);
         }
     }
