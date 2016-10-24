@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import java.util.UUID;
  * Created by MarleyAlford on 9/19/16.
  */
 public class CrimeFragment extends Fragment{
+
+    private static final String TAG = "cf_test";
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
@@ -84,9 +87,10 @@ public class CrimeFragment extends Fragment{
         mDateButton.setOnClickListener(new View.OnClickListener() {  //to show the date-picker dialog
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "Button Pressed");
                 FragmentManager manager = getFragmentManager();
                 //DatePickerFragment dialog = new DatePickerFragment();
-                DatePickerFragment dialog = new DatePickerFragment().newInstance(mCrime.getDate()); //reference to the new constructor we created that passes date as a parameter
+                DatePickerFragment dialog = new DatePickerFragment().newInstance(mCrime.getDate(), mCrime.getTime()); //reference to the new constructor we created that passes date as a parameter
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE); //creates relationship between data of DatePickerFragment and CrimeFragment
                 dialog.show(manager, DIALOG_DATE);
             }
