@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.UUID;
  * Created by MarleyAlford on 10/8/16.
  */
 public class CrimeLab {  //this is a singleton class (it only allows one instance of itself to be created
+    private static final String TAG = "cl_test";
     private static CrimeLab sCrimeLab;
 
     private List<Crime> mCrimes;
@@ -22,12 +24,18 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
     }
     private CrimeLab(Context context) {
         mCrimes = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + i);
-            crime.setSolved(i % 2 == 0);
-            mCrimes.add(crime);
-        }
+//        for (int i = 0; i < 100; i++) {  //we no longer need these randomly generated crimes
+//            Crime crime = new Crime();
+//            crime.setTitle("Crime #" + i);
+//            crime.setSolved(i % 2 == 0);
+//            mCrimes.add(crime);
+//        }
+    }
+
+    public void addCrime(Crime c) {  //allows you to add a new crime to the list
+        mCrimes.add(c);
+        Log.d(TAG, "Adding crime to mCrimes");
+        Log.d(TAG, "There are " + mCrimes.size() + " crimes in list.");
     }
 
     public List<Crime> getCrimes() {
