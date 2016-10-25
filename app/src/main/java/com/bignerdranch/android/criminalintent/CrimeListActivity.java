@@ -10,5 +10,4 @@ public class CrimeListActivity extends SingleFragmentActivity {
     protected Fragment createFragment(){
         return new CrimeListFragment();
     }
-    //PAGE 176
 }

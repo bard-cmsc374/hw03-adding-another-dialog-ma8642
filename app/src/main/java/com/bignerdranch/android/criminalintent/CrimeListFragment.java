@@ -1,14 +1,17 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -38,36 +41,56 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     private void updateUI() {  //sets up CrimeListFragment's user interface
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
-        mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
+        if (mAdapter == null) {  //for some reason this makes it so that it kind of saaves data between pressing back button??
+            mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
+            mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder {
-        //private Crime mCrime;
-        public TextView mTitleTextView;
-//        private TextView mTitleTextView;  //we add these so that we can reference our new layout file
-//        private TextView mDateTextView;
-//        private CheckBox mSolvedCheckBox;
+    private class CrimeHolder extends RecyclerView.ViewHolder implements OnClickListener{
+        private Crime mCrime;
+        //public TextView mTitleTextView;
+        private TextView mTitleTextView;  //we add these so that we can reference our new layout file
+        private TextView mDateTextView;
+        private CheckBox mSolvedCheckBox;
 
         public CrimeHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
 
-            mTitleTextView = (TextView) itemView;
-//            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
-//            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
-//            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
+            //mTitleTextView = (TextView) itemView;
+            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
+            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
+            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
         }
 
-//        public void bindCrime(Crime crime) {//CrimeHolder uses this to update the info to reflect state of Crime
-//            mCrime = crime;
-//            mTitleTextView.setText(mCrime.getTitle());
-//            mDateTextView.setText(mCrime.getDate().toString());
-//            mSolvedCheckBox.setChecked(mCrime.isSolved());
-//        }
+        public void bindCrime(Crime crime) {//CrimeHolder uses this to update the info to reflect state of Crime
+            mCrime = crime;
+            mTitleTextView.setText(mCrime.getTitle());
+            mDateTextView.setText(mCrime.getDate().toString());
+            mSolvedCheckBox.setChecked(mCrime.isSolved());
+        }
+
+        @Override
+        public void onClick(View v) {
+            //Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show(); //displays a toast whenever crime list item is clicked
+            //Intent intent = new Intent(getActivity(), CrimeActivity.class);  //starts activity once you click a crime list object
+            //Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());  //starts activity with the right crime id once you click a crime list object
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId()); //starts a pager acitvity with the right crime id once you click a crime list object
+            startActivity(intent);
+        }
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
@@ -80,16 +103,16 @@ public class CrimeListFragment extends Fragment {
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) { //called when recycle view needs a new view to display an item
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            //View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false); //use the layout file that we created
-            View view = layoutInflater
-                    .inflate(android.R.layout.simple_list_item_1, parent, false); //create a single textview
+            View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false); //use the layout file that we created
+            //View view = layoutInflater
+                    //.inflate(android.R.layout.simple_list_item_1, parent, false); //create a single textview
             return new CrimeHolder(view);
         }
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) { //binds a viewholder's view to model object
             Crime crime = mCrimes.get(position);
-            holder.mTitleTextView.setText(crime.getTitle());
-            //holder.bindCrime(crime);
+            //holder.mTitleTextView.setText(crime.getTitle());
+            holder.bindCrime(crime);
         }
         @Override
         public int getItemCount() {

@@ -47,6 +47,10 @@ public class Crime {
         return mDate;
     }
 
+    public long getTime() {return mDate.getTime();}
+
+    public void setTime(long time ) { mDate.setTime(time);}
+
     public void setDate(Date date) {
         mDate = date;
     }
