@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
@@ -22,6 +24,7 @@ import java.util.GregorianCalendar;
 public class DatePickerFragment extends DialogFragment {  //class for the datepicker dialog that will appear when we want to change the date of a crime
 
     public static final String EXTRA_DATE = "com.bignerdranch.android.criminalintent.date";
+    public static final String EXTRA_TIME = "com.bignerdranch.android.criminalintent.time";
 
     private static final String ARG_DATE = "date";
     private static final String ARG_TIME = "time";  //we are adding a time variable
@@ -53,7 +56,7 @@ public class DatePickerFragment extends DialogFragment {  //class for the datepi
         //adding TimePicker
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int min = calendar.get(Calendar.MINUTE);
-        int sec = calendar.get(Calendar.SECOND);
+        //int sec = calendar.get(Calendar.SECOND);
 
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date, null); //retrieves the date-picker view object
 
@@ -61,8 +64,18 @@ public class DatePickerFragment extends DialogFragment {  //class for the datepi
         mDatePicker.init(year, month, day, null);
 
         mTimePicker = (TimePicker) v.findViewById(R.id.dialog_date_time_picker);
-        //mTimePicker.setCurrentHour(hour);  okay this is not working but we have to initialize the time
-       // mTimePicker.setCurrentMinute(min);
+
+        if ( android.os.Build.VERSION.SDK_INT >= 23 ) //backward compatibility
+        {
+            mTimePicker.setHour(hour);
+            mTimePicker.setMinute(min);
+        }
+        else
+        {
+            mTimePicker.setCurrentHour(hour);
+            mTimePicker.setCurrentMinute(min);
+        }
+
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v) //sets view to dialog_date
@@ -75,20 +88,23 @@ public class DatePickerFragment extends DialogFragment {  //class for the datepi
                                 int year = mDatePicker.getYear();
                                 int month = mDatePicker.getMonth();
                                 int day = mDatePicker.getDayOfMonth();
-                                Date date = new GregorianCalendar(year, month, day).getTime();
-                                sendResult(Activity.RESULT_OK, date);
+                                int hour = mTimePicker.getHour();  //to set hours and minutes we add this
+                                int minute = mTimePicker.getMinute();
+                                Date date = new GregorianCalendar(year, month, day, hour, minute).getTime();
+                                sendResult(Activity.RESULT_OK, date, date.getTime());
                             }
                         })
                 .create();
     }
 
-    private void sendResult(int resultCode, Date date) {
+    private void sendResult(int resultCode, Date date, long time) {
         if (getTargetFragment() == null) {
             return;
         }
 
         Intent intent = new Intent();
         intent.putExtra(EXTRA_DATE, date);
+        intent.putExtra(EXTRA_TIME, time);
 
         getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
     }
