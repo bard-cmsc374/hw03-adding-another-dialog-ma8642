@@ -2,6 +2,9 @@ package com.bignerdranch.android.criminalintent;
 
 import android.content.Context;
 import android.util.Log;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,9 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
     private static CrimeLab sCrimeLab;
 
     private List<Crime> mCrimes;
+    //to create an SQLite database for our crime data
+    private Context mContext;
+    private SQLiteDatabase mDatabase;
 
     public static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
@@ -23,6 +29,8 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
         return sCrimeLab;
     }
     private CrimeLab(Context context) {
+        mContext = context.getApplicationContext();
+        mDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
         mCrimes = new ArrayList<>();
 //        for (int i = 0; i < 100; i++) {  //we no longer need these randomly generated crimes
 //            Crime crime = new Crime();
