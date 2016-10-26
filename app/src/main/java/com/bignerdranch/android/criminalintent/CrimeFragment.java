@@ -36,6 +36,7 @@ public class CrimeFragment extends Fragment {
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
+    private static final int REQUEST_NUMBER = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -194,6 +195,17 @@ public class CrimeFragment extends Fragment {
             } finally {
                 c.close();
             }
+        } else if (requestCode == REQUEST_NUMBER && data != null) {  //MODIFY THIS TO GET ID OF SUSPECT AND THEN WE WILL USE THAT TO GET THEIR NUMBER
+            String where = ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
+                            " AND " + ContactsContract.Data.MIMETYPE + " = '" +
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.NUMBER
+            };
+            Cursor dataCursor = getActivity()
+                    .getContentResolver()
+                    .query(ContactsContract.Data.CONTENT_URI, projection, where, null,
+                            null);
         }
     }
 

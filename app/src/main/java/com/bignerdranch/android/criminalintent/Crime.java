@@ -1,6 +1,8 @@
 package com.bignerdranch.android.criminalintent;
 
 //import java.util.Date;
+import com.bignerdranch.android.criminalintent.database.CrimeDbSchema;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.text.FieldPosition;
@@ -76,5 +78,10 @@ public class Crime {
 
     public void setSuspect(String suspect) {
         mSuspect = suspect;
+    }
+
+    public void getSuspectID() {
+        //Nothing yet
+        //return ;
     }
 }
