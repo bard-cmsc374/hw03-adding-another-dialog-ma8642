@@ -7,6 +7,7 @@ import android.util.Log;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper;
+import com.bignerdranch.android.criminalintent.database.CrimeCursorWrapper;
 import com.bignerdranch.android.criminalintent.database.CrimeDbSchema;
 
 import java.util.ArrayList;
@@ -54,7 +55,21 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
 
     public List<Crime> getCrimes() {
         //return mCrimes;
-        return new ArrayList<>();
+        //return new ArrayList<>();
+        List<Crime> crimes = new ArrayList<>();
+
+        CrimeCursorWrapper cursor = queryCrimes(null, null);
+
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                crimes.add(cursor.getCrime());
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+        return crimes;
     }
 
     public Crime getCrime(UUID id) {
@@ -85,7 +100,8 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
         return values;
     }
 
-    private Cursor queryCrimes(String whereClause, String[] whereArgs) {  //Reading in data from SQLite is done using the query(...) method.
+    //private Cursor queryCrimes(String whereClause, String[] whereArgs) {  //Reading in data from SQLite is done using the query(...) method.
+    private CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 CrimeDbSchema.CrimeTable.NAME,
                 null, //Columns - null selects all columns
@@ -96,6 +112,7 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
                 null // orderBy
         );
 
-        return cursor;
+        //return cursor;
+        return new CrimeCursorWrapper(cursor);
     }
 }
