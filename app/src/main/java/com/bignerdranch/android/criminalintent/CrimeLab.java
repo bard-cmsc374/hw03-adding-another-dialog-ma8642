@@ -2,6 +2,7 @@ package com.bignerdranch.android.criminalintent;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -82,5 +83,19 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
         values.put(CrimeDbSchema.CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
 
         return values;
+    }
+
+    private Cursor queryCrimes(String whereClause, String[] whereArgs) {  //Reading in data from SQLite is done using the query(...) method.
+        Cursor cursor = mDatabase.query(
+                CrimeDbSchema.CrimeTable.NAME,
+                null, //Columns - null selects all columns
+                whereClause,
+                whereArgs,
+                null, //groupBy
+                null, //having
+                null // orderBy
+        );
+
+        return cursor;
     }
 }
