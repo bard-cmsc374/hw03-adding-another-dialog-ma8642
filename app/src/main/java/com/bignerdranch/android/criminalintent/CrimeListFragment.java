@@ -124,6 +124,7 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
             mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
         } else {
+            mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
 
@@ -189,5 +190,9 @@ public class CrimeListFragment extends Fragment {
         public int getItemCount() {
             return mCrimes.size();
         }  //gives size of crime list
+
+        public void setCrimes(List<Crime> crimes) {  //will be used by adapter to swap out crimes it displays
+            mCrimes = crimes;
+        }
     }
 }
