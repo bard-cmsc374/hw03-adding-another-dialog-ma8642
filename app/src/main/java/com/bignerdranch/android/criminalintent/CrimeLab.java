@@ -1,10 +1,12 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper;
+import com.bignerdranch.android.criminalintent.database.CrimeDbSchema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
     private static final String TAG = "cl_test";
     private static CrimeLab sCrimeLab;
 
-    private List<Crime> mCrimes;
+    //private List<Crime> mCrimes; //we don't need this array anymore because we're using a database now
     //to create an SQLite database for our crime data
     private Context mContext;
     private SQLiteDatabase mDatabase;
@@ -31,7 +33,7 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
     private CrimeLab(Context context) {
         mContext = context.getApplicationContext();
         mDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
-        mCrimes = new ArrayList<>();
+        //mCrimes = new ArrayList<>();
 //        for (int i = 0; i < 100; i++) {  //we no longer need these randomly generated crimes
 //            Crime crime = new Crime();
 //            crime.setTitle("Crime #" + i);
@@ -41,21 +43,44 @@ public class CrimeLab {  //this is a singleton class (it only allows one instanc
     }
 
     public void addCrime(Crime c) {  //allows you to add a new crime to the list
-        mCrimes.add(c);
-        Log.d(TAG, "Adding crime to mCrimes");
-        Log.d(TAG, "There are " + mCrimes.size() + " crimes in list.");
+        //mCrimes.add(c);
+//        Log.d(TAG, "Adding crime to mCrimes");
+//        Log.d(TAG, "There are " + mCrimes.size() + " crimes in list.");
+        ContentValues values = getContentValues(c);
+
+        mDatabase.insert(CrimeDbSchema.CrimeTable.NAME, null, values);
     }
 
     public List<Crime> getCrimes() {
-        return mCrimes;
+        //return mCrimes;
+        return new ArrayList<>();
     }
 
     public Crime getCrime(UUID id) {
-        for (Crime crime : mCrimes) {
-            if (crime.getId().equals(id)) {
-                return crime;
-            }
-        }
+//        for (Crime crime : mCrimes) {
+//            if (crime.getId().equals(id)) {
+//                return crime;
+//            }
+//        }
         return null;
+    }
+
+    public void updateCrime(Crime crime) {
+        String uuidString = crime.getId().toString();
+        ContentValues values = getContentValues(crime);
+
+        mDatabase.update(CrimeDbSchema.CrimeTable.NAME , values,
+                CrimeDbSchema.CrimeTable.Cols.UUID + " = ?",
+                new String[] { uuidString });
+    }
+
+    private static ContentValues getContentValues(Crime crime) {
+        ContentValues values = new ContentValues();
+        values.put(CrimeDbSchema.CrimeTable.Cols.UUID, crime.getId().toString());
+        values.put(CrimeDbSchema.CrimeTable.Cols.TITLE, crime.getTitle());
+        values.put(CrimeDbSchema.CrimeTable.Cols.DATE, crime.getDate().getTime());
+        values.put(CrimeDbSchema.CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+
+        return values;
     }
 }

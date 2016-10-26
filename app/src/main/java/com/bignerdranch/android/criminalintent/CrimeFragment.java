@@ -22,7 +22,7 @@ import java.util.UUID;
 /**
  * Created by MarleyAlford on 9/19/16.
  */
-public class CrimeFragment extends Fragment{
+public class CrimeFragment extends Fragment {
 
     private static final String TAG = "cf_test";
 
@@ -51,9 +51,15 @@ public class CrimeFragment extends Fragment{
         //mCrime = new Crime();
         //UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);  //getting ID from arguments now that it's a private method in CrimeActivity
-
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
     }
 
     @Override
