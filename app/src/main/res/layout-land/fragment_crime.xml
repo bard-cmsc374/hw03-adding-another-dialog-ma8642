@@ -2,8 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     >
+
+    <include layout="@layout/view_camera_and_title"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -12,18 +14,18 @@
         style="?android:listSeparatorTextViewStyle"
         />
 
-    <EditText android:id="@+id/crime_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/crime_title_hint"
-        />
+    <!--<EditText android:id="@+id/crime_title"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:hint="@string/crime_title_hint"-->
+        <!--/>-->
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/crime_details_label"
-        style="?android:listSeparatorTextViewStyle"
-        />
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/crime_details_label"-->
+        <!--style="?android:listSeparatorTextViewStyle"-->
+        <!--/>-->
 
     <LinearLayout
         android:orientation="horizontal"
