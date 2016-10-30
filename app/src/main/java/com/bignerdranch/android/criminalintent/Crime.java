@@ -16,6 +16,7 @@ import java.util.UUID;
 public class Crime {
 
     private UUID mId;
+    private String susId;
     private String mTitle;
     private Date mDate;
     private boolean mSolved;
@@ -80,8 +81,9 @@ public class Crime {
         mSuspect = suspect;
     }
 
-    public void getSuspectID() {
-        //Nothing yet
-        //return ;
+    public void setSuspectId(String id) {susId = id;}
+
+    public String getSuspectID() {
+        return susId;
     }
 }

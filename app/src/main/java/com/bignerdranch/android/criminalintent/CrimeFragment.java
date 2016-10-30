@@ -1,7 +1,9 @@
 package com.bignerdranch.android.criminalintent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -37,6 +39,9 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_NUMBER = 2;
+    private Uri uriContact;
+    private String contactID;  //contact's unique ID
+    Context context;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -44,6 +49,7 @@ public class CrimeFragment extends Fragment {
     private CheckBox mSolvedCheckBox;
     private Button mReportButton;
     private Button mSuspectButton;
+    private Button mCallButton;
 
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -143,6 +149,15 @@ public class CrimeFragment extends Fragment {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
+        //Not sure how to do this part, because it tries to call, but it doesn't have the info yet..
+        final Intent callContact = new Intent(Intent.ACTION_CALL,
+                ContactsContract.Contacts.CONTENT_URI);
+        mCallButton = (Button) v.findViewById(R.id.call_suspect);
+        mCallButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivityForResult(callContact, REQUEST_NUMBER);
+            }
+        });
 
         if (mCrime.getSuspect() != null) {
             mSuspectButton.setText(mCrime.getSuspect());
@@ -172,7 +187,7 @@ public class CrimeFragment extends Fragment {
             Uri contactUri = data.getData();
             //Specify which fields you want your query to return
             //values for.
-            String[] queryFields = new String[] {
+            String[] queryFields = new String[]{
                     ContactsContract.Contacts.DISPLAY_NAME
             };
             //Perform your query = the contactUri is like a "where"
@@ -196,19 +211,53 @@ public class CrimeFragment extends Fragment {
                 c.close();
             }
         } else if (requestCode == REQUEST_NUMBER && data != null) {  //MODIFY THIS TO GET ID OF SUSPECT AND THEN WE WILL USE THAT TO GET THEIR NUMBER
-            String where = ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
-                            " AND " + ContactsContract.Data.MIMETYPE + " = '" +
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
-            String[] projection = new String[]{
-                    ContactsContract.CommonDataKinds.Phone.NUMBER
-            };
-            Cursor dataCursor = getActivity()
-                    .getContentResolver()
-                    .query(ContactsContract.Data.CONTENT_URI, projection, where, null,
-                            null);
+            //uriContact = data.getData();
+            getSuspectNumber();
         }
-    }
+//            String contactNumber = null;
+//            Uri numberUri = data.getData();
+//            //getting contacts ID
+//            Cursor cursorID = context.getContentResolver().query(numberUri, new String[]{ContactsContract.Contacts._ID}, null, null, null);
+//
+//            if (cursorID.moveToFirst()) {
+//                contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
+//            }
+//
+//            cursorID.close();
+//            Log.d(TAG, "Contact ID is: " + contactID);
+//
+//            //Now we use ID to get contact phone number
+//
+//            Cursor cursorPhone = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                    new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+//
+//            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
+//            ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
+//            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+//
+//            new String[]{contactID},
+//            null);
+//
+//            if (cursorPhone.moveToFirst()) {
+//                contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//            }
+//
+//            cursorPhone.close();
+//
+//            Log.d(TAG, "Contact Phone Number: " + contactNumber);
 
+//            String where = ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
+//                            " AND " + ContactsContract.Data.MIMETYPE + " = '" +
+//                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
+//            String[] projection = new String[]{
+//                    ContactsContract.CommonDataKinds.Phone.NUMBER
+//            };
+//            Cursor dataCursor = getActivity()
+//                    .getContentResolver()
+//                    .query(ContactsContract.Data.CONTENT_URI, projection, where, null,
+//                            null);
+//        }
+        }
     private void updateDate() {
         mDateButton.setText(mCrime.getDate().toString());
     }
@@ -234,5 +283,40 @@ public class CrimeFragment extends Fragment {
         String report = getString(R.string.crime_report, mCrime.getTitle(), dateString, solvedString, suspect);
 
         return report;
+    }
+
+    private void getSuspectNumber() {
+        String contactNumber = null;
+        //getting contacts ID
+        Cursor cursorID = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, new String[]{ContactsContract.Contacts._ID}, null, null, null);
+
+        if (cursorID.moveToFirst()) {
+            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
+        }
+
+        cursorID.close();
+        Log.d(TAG, "Contact ID is: " + contactID);
+
+        mCrime.setSuspectId(contactID);
+
+        //Now we use ID to get contact phone number
+
+        Cursor cursorPhone = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+
+                new String[]{contactID},
+                null);
+
+        if (cursorPhone.moveToFirst()) {
+            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        }
+
+        cursorPhone.close();
+
+        Log.d(TAG, "Contact Phone Number: " + contactNumber);
     }
 }
