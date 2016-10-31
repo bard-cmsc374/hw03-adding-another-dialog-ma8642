@@ -5,20 +5,26 @@
     android:orientation="vertical"
     >
 
-    <include layout="@layout/view_camera_and_title"/>
-    <TextView
+    <!--<include layout="@layout/view_camera_and_title"/>-->
+    <include android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/view_camera_and_title"/>
+
+    <!--<TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/crime_title_label"
         style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText android:id="@+id/crime_title"
+        />-->
+
+    <!--<EditText android:id="@+id/crime_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:hint="@string/crime_title_hint"
-        />
+        />-->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
