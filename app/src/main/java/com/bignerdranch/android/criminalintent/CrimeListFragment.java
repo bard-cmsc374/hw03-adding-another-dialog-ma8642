@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,19 @@ public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;  //a controller object that sits between the recycler view and the data set to be displayed
     private boolean mSubtitleVisible;
+    private Callbacks mCallbacks;
+
+    /**
+     * Required interface for hosting activities.
+     */
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) { //let fragment manager know that CrimeListFragment needs to receive menu callbacks
@@ -71,6 +85,12 @@ public class CrimeListFragment extends Fragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {  //inflates menu
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime_list, menu);
@@ -89,9 +109,11 @@ public class CrimeListFragment extends Fragment {
             case R.id.menu_item_new_crime:  //create new crimelist item
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity
-                        .newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+//                Intent intent = CrimePagerActivity
+//                        .newIntent(getActivity(), crime.getId());
+//                startActivity(intent);
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);  //responds differently depending on phone or tablet interface
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -160,8 +182,9 @@ public class CrimeListFragment extends Fragment {
             //Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show(); //displays a toast whenever crime list item is clicked
             //Intent intent = new Intent(getActivity(), CrimeActivity.class);  //starts activity once you click a crime list object
             //Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());  //starts activity with the right crime id once you click a crime list object
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId()); //starts a pager acitvity with the right crime id once you click a crime list object
-            startActivity(intent);
+//            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId()); //starts a pager acitvity with the right crime id once you click a crime list object
+//            startActivity(intent);
+            mCallbacks.onCrimeSelected(mCrime);  //responds differently depending on whether we are in phone or table mode
         }
     }
 
