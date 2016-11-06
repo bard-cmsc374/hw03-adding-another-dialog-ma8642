@@ -7,8 +7,9 @@ import android.support.v4.app.Fragment;
  * Created by MarleyAlford on 10/13/16.
  */
 public class CrimeListActivity extends SingleFragmentActivity
-        implements CrimeListFragment.Callbacks {
-        @Override
+        implements CrimeListFragment.Callbacks, CrimeFragment.Callbacks {
+
+    @Override
         protected Fragment createFragment () {
         return new CrimeListFragment();
     }
@@ -31,5 +32,12 @@ public class CrimeListActivity extends SingleFragmentActivity
                     .replace(R.id.detail_fragment_container, newDetail)
                     .commit();
         }
+    }
+
+    public void onCrimeUpdated(Crime crime) {  //implements CrimeFragment.Callbacks to reload the list when in tablet interface
+        CrimeListFragment listFragment = (CrimeListFragment)
+                getSupportFragmentManager()
+                        .findFragmentById(R.id.fragment_container);
+        listFragment.updateUI();
     }
 }

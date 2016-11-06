@@ -138,7 +138,8 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
-    private void updateUI() {  //sets up CrimeListFragment's user interface
+    //private void updateUI() {  //sets up CrimeListFragment's user interface
+    public void updateUI() {  //sets up CrimeListFragment's user interface
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
