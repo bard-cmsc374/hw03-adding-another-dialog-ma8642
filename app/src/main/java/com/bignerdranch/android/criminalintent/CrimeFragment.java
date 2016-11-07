@@ -153,13 +153,41 @@ public class CrimeFragment extends Fragment {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
-        //Not sure how to do this part, because it tries to call, but it doesn't have the info yet..
-        final Intent callContact = new Intent(Intent.ACTION_CALL,
-                ContactsContract.Contacts.CONTENT_URI);
+//        Log.d(TAG, "About to make ACTION_CALL intent");
+//        final Intent callContact = new Intent(Intent.ACTION_CALL,
+//                ContactsContract.Contacts.CONTENT_URI);
         mCallButton = (Button) v.findViewById(R.id.call_suspect);
         mCallButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivityForResult(callContact, REQUEST_NUMBER);
+
+                Log.d(TAG, "1.  clicking button..");
+                if (ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.READ_CONTACTS)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                            Manifest.permission.READ_CONTACTS)) {
+
+                        // Show an expanation to the user *asynchronously* -- don't block
+                        // this thread waiting for the user's response! After the user
+                        // sees the explanation, try again to request the permission.
+                        Log.d(TAG, "2.  Showing explanation");
+
+                    } else {
+
+                        // No explanation needed, we can request the permission.
+                        Log.d(TAG, "2.  calling requestPermissions");
+
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.READ_CONTACTS},
+                                REQUEST_NUMBER);
+
+                        // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                        // app-defined int constant. The callback method gets the
+                        // result of the request.
+                    }
+                }
             }
         });
 
@@ -180,6 +208,7 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {  //sets crime date to selected date
+        Log.d(TAG, "6.  called onActivityResult");
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
@@ -219,40 +248,30 @@ public class CrimeFragment extends Fragment {
         } else if (requestCode == REQUEST_NUMBER && data != null) {  //MODIFY THIS TO GET ID OF SUSPECT AND THEN WE WILL USE THAT TO GET THEIR NUMBER
             //uriContact = data.getData();
 
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.READ_CONTACTS)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                        Manifest.permission.READ_CONTACTS)) {
-
-                    // Show an expanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    Log.d(TAG, "Showing explanation");
-
-                } else {
-
-                    // No explanation needed, we can request the permission.
-
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.READ_CONTACTS},
-                            REQUEST_NUMBER);
-
-                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
-                }
-            }
-
-            //getSuspectNumber();
+            getSuspectNumber();
         }
     }
 
+    //Sven's version
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[]
+//            permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions,
+//                grantResults);
+//        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+//        if (fragments != null) {
+//            for (Fragment fragment : fragments) {
+//                fragment.onRequestPermissionsResult(requestCode, permissions,
+//                        grantResults);
+//            }
+//        }
+//    }
+
+    //Developer's version
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        Log.d(TAG, "3.  called onRequestPermissionResult");
         switch (requestCode) {
             case REQUEST_NUMBER: {
                 // If request is cancelled, the result arrays are empty.
@@ -261,14 +280,18 @@ public class CrimeFragment extends Fragment {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    Log.d(TAG, "Gained access to contacts!");
+                    Log.d(TAG, "4.  Gained access to contacts!");
                     //getSuspectNumber();  //CALL THIS HERE IF IT WORKS
+                    Log.d(TAG, "5.  About to make ACTION_CALL intent");
+                    final Intent callContact = new Intent(Intent.ACTION_CALL,
+                            ContactsContract.Contacts.CONTENT_URI);
+                    startActivityForResult(callContact, REQUEST_NUMBER);
 
                 } else {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Log.d(TAG, "Cannot get access to contacts");
+                    Log.d(TAG, "4.  Cannot get access to contacts");
 
                 }
                 return;
