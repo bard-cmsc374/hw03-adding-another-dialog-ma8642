@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +10,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -22,6 +25,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Date;
 import java.util.UUID;
@@ -172,6 +176,8 @@ public class CrimeFragment extends Fragment {
         return v;
     }
 
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {  //sets crime date to selected date
         if (resultCode != Activity.RESULT_OK) {
@@ -212,52 +218,67 @@ public class CrimeFragment extends Fragment {
             }
         } else if (requestCode == REQUEST_NUMBER && data != null) {  //MODIFY THIS TO GET ID OF SUSPECT AND THEN WE WILL USE THAT TO GET THEIR NUMBER
             //uriContact = data.getData();
-            getSuspectNumber();
-        }
-//            String contactNumber = null;
-//            Uri numberUri = data.getData();
-//            //getting contacts ID
-//            Cursor cursorID = context.getContentResolver().query(numberUri, new String[]{ContactsContract.Contacts._ID}, null, null, null);
-//
-//            if (cursorID.moveToFirst()) {
-//                contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
-//            }
-//
-//            cursorID.close();
-//            Log.d(TAG, "Contact ID is: " + contactID);
-//
-//            //Now we use ID to get contact phone number
-//
-//            Cursor cursorPhone = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-//                    new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
-//
-//            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
-//            ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
-//            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
-//
-//            new String[]{contactID},
-//            null);
-//
-//            if (cursorPhone.moveToFirst()) {
-//                contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//            }
-//
-//            cursorPhone.close();
-//
-//            Log.d(TAG, "Contact Phone Number: " + contactNumber);
 
-//            String where = ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
-//                            " AND " + ContactsContract.Data.MIMETYPE + " = '" +
-//                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
-//            String[] projection = new String[]{
-//                    ContactsContract.CommonDataKinds.Phone.NUMBER
-//            };
-//            Cursor dataCursor = getActivity()
-//                    .getContentResolver()
-//                    .query(ContactsContract.Data.CONTENT_URI, projection, where, null,
-//                            null);
-//        }
+            if (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.READ_CONTACTS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                        Manifest.permission.READ_CONTACTS)) {
+
+                    // Show an expanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+                    Log.d(TAG, "Showing explanation");
+
+                } else {
+
+                    // No explanation needed, we can request the permission.
+
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.READ_CONTACTS},
+                            REQUEST_NUMBER);
+
+                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                    // app-defined int constant. The callback method gets the
+                    // result of the request.
+                }
+            }
+
+            //getSuspectNumber();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_NUMBER: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Log.d(TAG, "Gained access to contacts!");
+                    //getSuspectNumber();  //CALL THIS HERE IF IT WORKS
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d(TAG, "Cannot get access to contacts");
+
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
     private void updateDate() {
         mDateButton.setText(mCrime.getDate().toString());
     }
@@ -318,5 +339,10 @@ public class CrimeFragment extends Fragment {
         cursorPhone.close();
 
         Log.d(TAG, "Contact Phone Number: " + contactNumber);
+    }
+
+    public void toast(String msg)
+    {
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 }
