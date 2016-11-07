@@ -161,20 +161,20 @@ public class CrimeFragment extends Fragment {
             public void onClick(View v) {
 
                 Log.d(TAG, "1.  clicking button..");
-                if (ContextCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.READ_CONTACTS)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-                    // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                            Manifest.permission.READ_CONTACTS)) {
-
-                        // Show an expanation to the user *asynchronously* -- don't block
-                        // this thread waiting for the user's response! After the user
-                        // sees the explanation, try again to request the permission.
-                        Log.d(TAG, "2.  Showing explanation");
-
-                    } else {
+//                if (ContextCompat.checkSelfPermission(getActivity(),
+//                        Manifest.permission.READ_CONTACTS)
+//                        != PackageManager.PERMISSION_GRANTED) {
+//
+//                    // Should we show an explanation?
+//                    if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+//                            Manifest.permission.READ_CONTACTS)) {
+//
+//                        // Show an expanation to the user *asynchronously* -- don't block
+//                        // this thread waiting for the user's response! After the user
+//                        // sees the explanation, try again to request the permission.
+//                        Log.d(TAG, "2.  Showing explanation");
+//
+//                    } else {
 
                         // No explanation needed, we can request the permission.
                         Log.d(TAG, "2.  calling requestPermissions");
@@ -186,8 +186,8 @@ public class CrimeFragment extends Fragment {
                         // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                         // app-defined int constant. The callback method gets the
                         // result of the request.
-                    }
-                }
+                    //}
+                //}
             }
         });
 
@@ -248,24 +248,9 @@ public class CrimeFragment extends Fragment {
         } else if (requestCode == REQUEST_NUMBER && data != null) {  //MODIFY THIS TO GET ID OF SUSPECT AND THEN WE WILL USE THAT TO GET THEIR NUMBER
             //uriContact = data.getData();
 
-            getSuspectNumber();
+            //getSuspectNumber();
         }
     }
-
-    //Sven's version
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[]
-//            permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions,
-//                grantResults);
-//        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-//        if (fragments != null) {
-//            for (Fragment fragment : fragments) {
-//                fragment.onRequestPermissionsResult(requestCode, permissions,
-//                        grantResults);
-//            }
-//        }
-//    }
 
     //Developer's version
     @Override
@@ -282,10 +267,14 @@ public class CrimeFragment extends Fragment {
                     // contacts-related task you need to do.
                     Log.d(TAG, "4.  Gained access to contacts!");
                     //getSuspectNumber();  //CALL THIS HERE IF IT WORKS
-                    Log.d(TAG, "5.  About to make ACTION_CALL intent");
-                    final Intent callContact = new Intent(Intent.ACTION_CALL,
-                            ContactsContract.Contacts.CONTENT_URI);
-                    startActivityForResult(callContact, REQUEST_NUMBER);
+                    Log.d(TAG, "5.  get phone number");
+
+                    getSuspectNumber();
+
+
+//                    final Intent callContact = new Intent(Intent.ACTION_CALL,
+//                            ContactsContract.Contacts.CONTENT_URI);
+//                    startActivityForResult(callContact, REQUEST_NUMBER);
 
                 } else {
 
@@ -332,7 +321,13 @@ public class CrimeFragment extends Fragment {
     private void getSuspectNumber() {
         String contactNumber = null;
         //getting contacts ID
-        Cursor cursorID = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, new String[]{ContactsContract.Contacts._ID}, null, null, null);
+        Uri uri = ContactsContract.Data.CONTENT_URI;
+        Log.d(TAG, "URI is not null");
+
+        String[] idList = new String[]{ContactsContract.Contacts._ID};
+        Log.d(TAG, "idList is not null");
+
+        Cursor cursorID = getActivity().getContentResolver().query(uri, idList, null, null, null);
 
         if (cursorID.moveToFirst()) {
             contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
@@ -345,21 +340,36 @@ public class CrimeFragment extends Fragment {
 
         //Now we use ID to get contact phone number
 
-        Cursor cursorPhone = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
 
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
-                        ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
-                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+        //SVEN
+        String where =
+                ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
+                        " AND " + ContactsContract.Data.MIMETYPE + " = '" +
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
 
-                new String[]{contactID},
-                null);
+        String[] projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+        };
 
-        if (cursorPhone.moveToFirst()) {
-            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        Cursor c = getActivity()
+                .getContentResolver()
+                .query(ContactsContract.Data.CONTENT_URI, projection, where, null,
+                        null);
+
+        try {
+            //Double-check that you atually got results
+            if (c.getCount() == 0) {
+                Log.d(TAG, "curser non-empty");
+                return;
+            }
+
+            //Pull out the PhoneNumber column of the first row of data -
+            //that is your suspect's number.
+            c.moveToFirst();
+            contactNumber = c.getString(0);
+        } finally {
+            c.close();
         }
-
-        cursorPhone.close();
 
         Log.d(TAG, "Contact Phone Number: " + contactNumber);
     }
