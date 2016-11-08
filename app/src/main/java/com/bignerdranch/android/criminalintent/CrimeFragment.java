@@ -223,6 +223,7 @@ public class CrimeFragment extends Fragment {
             //Specify which fields you want your query to return
             //values for.
             String[] queryFields = new String[]{
+                    ContactsContract.Contacts._ID,
                     ContactsContract.Contacts.DISPLAY_NAME
             };
             //Perform your query = the contactUri is like a "where"
@@ -239,7 +240,9 @@ public class CrimeFragment extends Fragment {
                 //Pull out the first column of the first row of data -
                 //that is your suspect's name.
                 c.moveToFirst();
-                String suspect = c.getString(0);
+                mCrime.setSuspectId(c.getString(0));
+                Log.d(TAG, "got Suspect id: " + c.getString(0));
+                String suspect = c.getString(1);
                 mCrime.setSuspect(suspect);
                 mSuspectButton.setText(suspect);
             } finally {
@@ -269,12 +272,14 @@ public class CrimeFragment extends Fragment {
                     //getSuspectNumber();  //CALL THIS HERE IF IT WORKS
                     Log.d(TAG, "5.  get phone number");
 
-                    getSuspectNumber();
+                    String number = getSuspectNumber();
 
 
 //                    final Intent callContact = new Intent(Intent.ACTION_CALL,
 //                            ContactsContract.Contacts.CONTENT_URI);
-//                    startActivityForResult(callContact, REQUEST_NUMBER);
+
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + number));
+                    startActivity(intent);
 
                 } else {
 
@@ -318,25 +323,23 @@ public class CrimeFragment extends Fragment {
         return report;
     }
 
-    private void getSuspectNumber() {
+    private String getSuspectNumber() {
         String contactNumber = null;
         //getting contacts ID
         Uri uri = ContactsContract.Data.CONTENT_URI;
         Log.d(TAG, "URI is not null");
-
-        String[] idList = new String[]{ContactsContract.Contacts._ID};
-        Log.d(TAG, "idList is not null");
-
-        Cursor cursorID = getActivity().getContentResolver().query(uri, idList, null, null, null);
-
-        if (cursorID.moveToFirst()) {
-            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
-        }
-
-        cursorID.close();
-        Log.d(TAG, "Contact ID is: " + contactID);
-
-        mCrime.setSuspectId(contactID);
+//
+//        String[] idList = new String[]{ContactsContract.Contacts._ID};
+//        Log.d(TAG, "idList is not null");
+//
+//        Cursor cursorID = getActivity().getContentResolver().query(uri, idList, null, null, null);
+//
+//        if (cursorID.moveToFirst()) {
+//            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
+//        }
+//
+//        cursorID.close();
+        Log.d(TAG, "Contact ID is: " + mCrime.getSuspectID());
 
         //Now we use ID to get contact phone number
 
@@ -346,6 +349,7 @@ public class CrimeFragment extends Fragment {
                 ContactsContract.Data.CONTACT_ID + " = " + mCrime.getSuspectID() +
                         " AND " + ContactsContract.Data.MIMETYPE + " = '" +
                         ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
+        Log.d(TAG, where);
 
         String[] projection = new String[]{
                 ContactsContract.CommonDataKinds.Phone.NUMBER
@@ -359,8 +363,7 @@ public class CrimeFragment extends Fragment {
         try {
             //Double-check that you atually got results
             if (c.getCount() == 0) {
-                Log.d(TAG, "curser non-empty");
-                return;
+                //Log.d(TAG, c.toString());
             }
 
             //Pull out the PhoneNumber column of the first row of data -
@@ -372,6 +375,8 @@ public class CrimeFragment extends Fragment {
         }
 
         Log.d(TAG, "Contact Phone Number: " + contactNumber);
+
+        return contactNumber;
     }
 
     public void toast(String msg)

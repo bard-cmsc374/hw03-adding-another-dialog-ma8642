@@ -120,7 +120,7 @@ public class CrimeListFragment extends Fragment {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        if (mAdapter == null) {  //for some reason this makes it so that it kind of saaves data between pressing back button??
+        if (mAdapter == null) {  //for some reason this makes it so that it kind of saves data between pressing back button??
             mAdapter = new CrimeAdapter(crimes);  //create a crime adapter
             mCrimeRecyclerView.setAdapter(mAdapter); //set it on RecyclerView
         } else {
